@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Workout App',
-  description: 'Your personal workout session builder',
+  title: 'Axis Fitness',
+description: 'Elevate Your Routine',
 }
 
 export default function RootLayout({

@@ -43,7 +43,10 @@ export default function Log() {
     <div style={{minHeight:'100vh',background:'#0f0f0f',color:'#f5f5f5'}}>
       {/* NAV */}
       <div style={{background:'#1a1a1a',borderBottom:'1px solid #2a2a2a',padding:'12px 1.5rem',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-        <div style={{fontWeight:'600',fontSize:'16px'}}>🏋️ Workout Builder</div>
+        <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+  <img src="/logo.png" alt="Axis Fitness" style={{width:'36px',height:'36px',objectFit:'contain',borderRadius:'6px'}} />
+  <span style={{fontWeight:'700',fontSize:'16px',color:'#FF8C00'}}>Axis Fitness</span>
+</div>
         <div style={{display:'flex',gap:'10px'}}>
           <button onClick={()=>router.push('/dashboard')} style={{background:'transparent',border:'1px solid #2a2a2a',color:'#f5f5f5',padding:'6px 14px',borderRadius:'6px',cursor:'pointer',fontSize:'13px'}}>Dashboard</button>
           <button onClick={async()=>{await supabase.auth.signOut();router.push('/')}} style={{background:'transparent',border:'1px solid #2a2a2a',color:'#888',padding:'6px 14px',borderRadius:'6px',cursor:'pointer',fontSize:'13px'}}>Logout</button>

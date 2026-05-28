@@ -32,10 +32,10 @@ export default function Home() {
     <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:'1rem',background:'#0f0f0f'}}>
       <div style={{width:'100%',maxWidth:'400px',background:'#1a1a1a',borderRadius:'16px',padding:'2rem',border:'1px solid #2a2a2a'}}>
         <div style={{textAlign:'center',marginBottom:'2rem'}}>
-          <div style={{fontSize:'40px',marginBottom:'8px'}}>🏋️</div>
-          <h1 style={{fontSize:'24px',fontWeight:'600',color:'#f5f5f5'}}>Workout Builder</h1>
-          <p style={{fontSize:'14px',color:'#888',marginTop:'4px'}}>Your personal gym session planner</p>
-        </div>
+  <img src="/logo.png" alt="Axis Fitness" style={{width:'180px',height:'180px',objectFit:'contain',marginBottom:'8px',borderRadius:'16px'}} />
+  <h1 style={{fontSize:'24px',fontWeight:'600',color:'#f5f5f5'}}>Axis Fitness</h1>
+  <p style={{fontSize:'14px',color:'#FF8C00',marginTop:'4px',fontWeight:'500'}}>Elevate Your Routine</p>
+</div>
 
         <div style={{display:'flex',marginBottom:'1.5rem',background:'#0f0f0f',borderRadius:'8px',padding:'4px'}}>
           <button onClick={()=>setIsLogin(true)} style={{flex:1,padding:'8px',borderRadius:'6px',border:'none',cursor:'pointer',fontWeight:'500',fontSize:'14px',background:isLogin?'#7F77DD':'transparent',color:isLogin?'#fff':'#888',transition:'all .2s'}}>Login</button>
