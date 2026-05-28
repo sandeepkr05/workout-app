@@ -10,11 +10,24 @@ export default function Log() {
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<any>(null)
 
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) router.push('/')
-      else { setUser(data.user); fetchSessions(data.user.id) }
+ useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        router.push('/')
+      } else {
+        setUser(session.user)
+        fetchSessions(session.user.id)
+      }
+    }
+    checkSession()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) router.push('/')
+      else { setUser(session.user); fetchSessions(session.user.id) }
     })
+
+    return () => subscription.unsubscribe()
   }, [])
 
   async function fetchSessions(uid: string) {
