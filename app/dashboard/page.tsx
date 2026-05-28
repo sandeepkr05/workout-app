@@ -176,23 +176,11 @@ export default function Dashboard() {
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) {
-        router.push('/')
-      } else {
-        setUser(session.user)
-      }
-    }
-    checkSession()
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) router.push('/')
-      else setUser(session.user)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    if (!session) router.push('/')
+    else setUser(session.user)
+  })
+}, [])
 
   async function logout() {
     await supabase.auth.signOut()

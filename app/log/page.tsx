@@ -15,11 +15,6 @@ export default function Log() {
     if (!session) router.push('/')
     else { setUser(session.user); fetchSessions(session.user.id) }
   })
-
-  supabase.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_OUT') router.push('/')
-    if (session) { setUser(session.user); fetchSessions(session.user.id) }
-  })
 }, [])
 
   async function fetchSessions(uid: string) {
