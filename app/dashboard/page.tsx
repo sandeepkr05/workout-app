@@ -176,49 +176,17 @@ export default function Dashboard() {
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
-    const initAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    async (event, session) => {
       if (session) {
         setUser(session.user)
-        return
-      }
-
-      const stored = window.localStorage.getItem('sb-session')
-      if (stored) {
-        try {
-          const parsedSession = JSON.parse(stored)
-          const { data, error } = await supabase.auth.setSession(parsedSession)
-          if (data.session) {
-            setUser(data.session.user)
-            return
-          }
-        } catch (e) {}
-      }
-      
-      router.push('/')
-    }
-
-    initAuth()
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') {
-        window.localStorage.removeItem('sb-session')
+      } else {
         router.push('/')
       }
-      if (event === 'SIGNED_IN' && session) {
-        window.localStorage.setItem('sb-session', JSON.stringify(session))
-        setUser(session.user)
-      }
-      if (event === 'TOKEN_REFRESHED' && session) {
-        window.localStorage.setItem('sb-session', JSON.stringify(session))
-        setUser(session.user)
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
-
+    }
+  )
+  return () => subscription.unsubscribe()
+}, [])
   async function logout() {
     window.localStorage.removeItem('sb-session')
     await supabase.auth.signOut()
