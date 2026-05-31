@@ -165,6 +165,7 @@ const s = (obj: any) => ({ ...obj })
 export default function Dashboard() {
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true) // Added loading state here
   const [screen, setScreen] = useState<'home'|'exercises'|'summary'>('home')
   const [tab, setTab] = useState<'single'|'combo'>('single')
   const [target, setTarget] = useState('')
@@ -175,18 +176,38 @@ export default function Dashboard() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
+  // Replaced the useEffect with the INITIAL_SESSION handler
   useEffect(() => {
-  const { data: { subscription } } = supabase.auth.onAuthStateChange(
-    async (event, session) => {
-      if (session) {
-        setUser(session.user)
-      } else {
-        router.push('/')
+    let mounted = true
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (!mounted) return
+
+        if (event === 'INITIAL_SESSION') {
+          if (!session) {
+            router.push('/')
+          } else {
+            setUser(session.user)
+            setIsLoading(false)
+          }
+        } else if (event === 'SIGNED_IN' && session) {
+          setUser(session.user)
+          setIsLoading(false)
+        } else if (event === 'SIGNED_OUT') {
+          router.push('/')
+        } else if (event === 'TOKEN_REFRESHED' && session) {
+          setUser(session.user)
+        }
       }
+    )
+
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
     }
-  )
-  return () => subscription.unsubscribe()
-}, [])
+  }, [router])
+
   async function logout() {
     window.localStorage.removeItem('sb-session')
     await supabase.auth.signOut()
@@ -256,7 +277,10 @@ export default function Dashboard() {
     )
   }
 
-  if (!user) return <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#888'}}>Loading...</div>
+  // Updated the Loading check so it doesn't crash on initial load or empty user state
+  if (isLoading || !user) {
+    return <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#888'}}>Loading...</div>
+  }
 
   return (
     <div style={{minHeight:'100vh',background:'#0f0f0f',color:'#f5f5f5'}}>

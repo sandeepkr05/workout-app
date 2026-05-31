@@ -6,23 +6,39 @@ import { useRouter } from 'next/navigation'
 export default function Log() {
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true) // Added loading state for auth verification
   const [sessions, setSessions] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true) // This is for your data fetching
   const [selected, setSelected] = useState<any>(null)
 
- useEffect(() => {
-  const { data: { subscription } } = supabase.auth.onAuthStateChange(
-    async (event, session) => {
-      if (session) {
-        setUser(session.user)
-        fetchSessions(session.user.id)
-      } else {
-        router.push('/')
+  useEffect(() => {
+    let mounted = true
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (!mounted) return
+
+        if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
+          if (!session) {
+            router.push('/')
+          } else {
+            setUser(session.user)
+            fetchSessions(session.user.id) // Fetch sessions only when auth is confirmed
+            setIsLoading(false)
+          }
+        } else if (event === 'SIGNED_OUT') {
+          router.push('/')
+        } else if (event === 'TOKEN_REFRESHED' && session) {
+          setUser(session.user)
+        }
       }
+    )
+
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
     }
-  )
-  return () => subscription.unsubscribe()
-}, [])
+  }, [router])
 
   async function fetchSessions(uid: string) {
     const { data } = await supabase
@@ -44,7 +60,10 @@ export default function Log() {
     <button onClick={onClick} style={{display:'inline-flex',alignItems:'center',gap:'6px',padding:'10px 20px',borderRadius:'8px',border:primary?'none':'1px solid #2a2a2a',background:primary?'#7F77DD':'transparent',color:'#f5f5f5',fontSize:'14px',fontWeight:primary?'600':'400',cursor:'pointer'}}>{children}</button>
   )
 
-  if (!user) return <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#888'}}>Loading...</div>
+  // Updated to include isLoading check to prevent premature renders or redirects
+  if (isLoading || !user) {
+    return <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#888'}}>Loading...</div>
+  }
 
   return (
     <div style={{minHeight:'100vh',background:'#0f0f0f',color:'#f5f5f5'}}>
