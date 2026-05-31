@@ -23,8 +23,9 @@ export default function Home() {
       })
       if (error) {
         setError(error.message)
-      } else if (data.session) {
-        window.localStorage.setItem('sb-session', JSON.stringify(data.session))
+      } else {
+        // Wait for session to be stored
+        await new Promise(resolve => setTimeout(resolve, 1000))
         router.push('/dashboard')
       }
     } else {
