@@ -17,9 +17,16 @@ export default function Home() {
     setError('')
     setMessage('')
     if (isLogin) {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) setError(error.message)
-      else router.push('/dashboard')
+      const { data, error } = await supabase.auth.signInWithPassword({ 
+        email, 
+        password 
+      })
+      if (error) {
+        setError(error.message)
+      } else if (data.session) {
+        window.localStorage.setItem('sb-session', JSON.stringify(data.session))
+        router.push('/dashboard')
+      }
     } else {
       const { error } = await supabase.auth.signUp({ email, password })
       if (error) setError(error.message)
@@ -27,7 +34,6 @@ export default function Home() {
     }
     setLoading(false)
   }
-
   return (
     <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:'1rem',background:'#0f0f0f'}}>
       <div style={{width:'100%',maxWidth:'400px',background:'#1a1a1a',borderRadius:'16px',padding:'2rem',border:'1px solid #2a2a2a'}}>

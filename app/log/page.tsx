@@ -11,11 +11,47 @@ export default function Log() {
   const [selected, setSelected] = useState<any>(null)
 
  useEffect(() => {
-  supabase.auth.getSession().then(({ data: { session } }) => {
-    if (!session) router.push('/')
-    else { setUser(session.user); fetchSessions(session.user.id) }
-  })
-}, [])
+    const initAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (session) {
+        setUser(session.user)
+        fetchSessions(session.user.id)
+        return
+      }
+
+      const stored = window.localStorage.getItem('sb-session')
+      if (stored) {
+        try {
+          const parsedSession = JSON.parse(stored)
+          const { data } = await supabase.auth.setSession(parsedSession)
+          if (data.session) {
+            setUser(data.session.user)
+            fetchSessions(data.session.user.id)
+            return
+          }
+        } catch (e) {}
+      }
+      
+      router.push('/')
+    }
+
+    initAuth()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        window.localStorage.removeItem('sb-session')
+        router.push('/')
+      }
+      if (event === 'SIGNED_IN' && session) {
+        window.localStorage.setItem('sb-session', JSON.stringify(session))
+        setUser(session.user)
+        fetchSessions(session.user.id)
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
 
   async function fetchSessions(uid: string) {
     const { data } = await supabase
