@@ -9,5 +9,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     detectSessionInUrl: false,
     storageKey: 'axis-fitness-auth-token',
+    // ADD THIS LINE to force it to use the device's storage
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
   }
 })

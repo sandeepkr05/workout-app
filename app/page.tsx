@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 
@@ -11,6 +11,22 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
+  
+  // New state to prevent the login UI from flashing while checking local storage
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
+
+  // PWA Cold Boot Fix: Check for an existing session on initial load
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        // Session found in storage! Instantly redirect.
+        router.push('/dashboard')
+      } else {
+        // No session found, let them see the login form.
+        setIsCheckingAuth(false)
+      }
+    })
+  }, [router])
 
   async function handleAuth() {
     setLoading(true)
@@ -24,8 +40,8 @@ export default function Home() {
       if (error) {
         setError(error.message)
       } else {
-        // Wait for session to be stored
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        // Removed the artificial 1-second delay; it's generally unnecessary 
+        // with the INITIAL_SESSION setup we added to the dashboard.
         router.push('/dashboard')
       }
     } else {
@@ -35,6 +51,12 @@ export default function Home() {
     }
     setLoading(false)
   }
+
+  // Show a blank or loading screen while checking storage so the login form doesn't flicker
+  if (isCheckingAuth) {
+    return <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'#0f0f0f',color:'#888'}}>Checking session...</div>
+  }
+
   return (
     <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:'1rem',background:'#0f0f0f'}}>
       <div style={{width:'100%',maxWidth:'400px',background:'#1a1a1a',borderRadius:'16px',padding:'2rem',border:'1px solid #2a2a2a'}}>

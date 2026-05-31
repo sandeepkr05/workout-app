@@ -209,7 +209,6 @@ export default function Dashboard() {
   }, [router])
 
   async function logout() {
-    window.localStorage.removeItem('sb-session')
     await supabase.auth.signOut()
     router.push('/')
   }
