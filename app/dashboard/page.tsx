@@ -1,4 +1,5 @@
 'use client'
+import AICoach from '../components/AICoach'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
@@ -424,6 +425,7 @@ export default function Dashboard() {
         </>}
 
       </div>
+      <AICoach />
     </div>
   )
 }
