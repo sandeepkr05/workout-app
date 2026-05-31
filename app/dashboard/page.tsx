@@ -247,7 +247,7 @@ export default function Dashboard() {
     const warmupCal = selWarmup.length * 15
     const mainCal = selMain.reduce((s:number,e:any)=>s+e.cal,0)
     const cardioCal = selCardio ? selCardio.cal : 0
-    await supabase.from('sessions').insert({
+    const { error } = await (supabase.from('sessions') as any).insert({
       user_id: user.id,
       session_date: now.toISOString().split('T')[0],
       target,
@@ -256,7 +256,8 @@ export default function Dashboard() {
       cardio: selCardio,
       total_calories: warmupCal + mainCal + cardioCal,
     })
-    setSaving(false); setSaved(true)
+    setSaving(false)
+    setSaved(true)
   }
 
   const totalCal = selWarmup.length*15 + selMain.reduce((s:number,e:any)=>s+e.cal,0) + (selCardio?.cal||0)
